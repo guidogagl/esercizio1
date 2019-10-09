@@ -1,5 +1,6 @@
 package esercizio1;
 
+import java.sql.ResultSet;
 import java.util.Vector;
 
 public class dbHandler {
@@ -114,6 +115,19 @@ public class dbHandler {
 		return insert("azienda", tf, val, nR);
 	}
 
+	public ResultSet getAgency(String agencyName) {
+		String sqlStr = "SELECT * FROM azienda WHERE nomeAzienda = " + agencyName;
+		
+		Connect conn = new Connect();
+		
+		ResultAndRows result = conn.query(sqlStr);
+		
+		conn.close();
+		
+		if(result.nrow_ == 1) return result.rs_;
+		
+		return null;
+	}
 
-	
+	public select
 }

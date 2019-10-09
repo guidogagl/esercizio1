@@ -1,4 +1,4 @@
-package fundracing_package;
+package esercizio1;
 
 import javafx.beans.property.*;
 
