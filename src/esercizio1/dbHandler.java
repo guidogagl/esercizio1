@@ -45,6 +45,20 @@ public class dbHandler {
 		return insert("progetto", tf, val, nR);
 	}
 
+	public Boolean deleteProject(int projectId){
+		String deleteStr = "DELETE FROM progetto WHERE id = " + projectId;
+		
+		Connect conn = new Connect();
+	
+		ResultAndRows result = conn.query(deleteStr);
+		
+		conn.close();
+		
+		if(result.nrow_ == 1) return true;
+		
+		return false;
+	}	
+	
 	public Boolean insertStake(Vector<String> val) {
 		Vector<String> tf = new Vector<String>(4);
 		
@@ -56,6 +70,34 @@ public class dbHandler {
 		int nR = val.capacity()/4;
 		
 		return insert("finanziamento", tf, val, nR);
+	}
+	
+	public Boolean updateStake(int stakeId, int stakeBudget) {
+		String updateStr = "UPDATE finanziamento SET budget = " + stakeBudget + " WHERE id = " + stakeId;
+		
+		Connect conn = new Connect();
+	
+		ResultAndRows result = conn.query(updateStr);
+		
+		conn.close();
+		
+		if(result.nrow_ == 1) return true;
+		
+		return false;
+	}
+	
+	public Boolean deleteStake(int stakeId) {
+		String deleteStr = "DELETE FROM finanziamento WHERE id = " + stakeId;
+		
+		Connect conn = new Connect();
+	
+		ResultAndRows result = conn.query(deleteStr);
+		
+		conn.close();
+		
+		if(result.nrow_ == 1) return true;
+		
+		return false;
 	}
 	
 	public Boolean insertAgency(Vector<String> val) {
@@ -72,6 +114,6 @@ public class dbHandler {
 		return insert("azienda", tf, val, nR);
 	}
 
-	
 
+	
 }
