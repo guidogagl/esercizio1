@@ -5,8 +5,8 @@ import javafx.collections.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 
-public class TableProjects extends TableView<Project>{
-    private ObservableList<Project> projectsList;
+public class TableProjects extends TableView<RowTableProjects>{
+    private ObservableList<RowTableProjects> projectsList;
     
     public TableProjects() {
     	setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -36,7 +36,7 @@ public class TableProjects extends TableView<Project>{
         
     }
     
-    public void updateProjects(List<Project> projects) {
+    public void updateProjects(List<RowTableProjects> projects) {
     	projectsList.clear();
     	projectsList.addAll(projects);
     }

@@ -2,7 +2,7 @@ package esercizio1;
 
 import javafx.beans.property.*;
 
-public class Project {
+public class RowTableProjects {
 
 	private final SimpleIntegerProperty ID_Project;
 	private final SimpleStringProperty name_project;
@@ -11,7 +11,7 @@ public class Project {
 	private SimpleIntegerProperty stake;
 	private final SimpleStringProperty name_owner;
 	
-	public Project(int ID_Project, String name_project, String progress, int total_budget, int stake, String name_owner) {
+	public RowTableProjects(int ID_Project, String name_project, String progress, int total_budget, int stake, String name_owner) {
 		
 		this.ID_Project = new SimpleIntegerProperty(ID_Project);
 		this.name_project = new SimpleStringProperty(name_project);
