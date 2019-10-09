@@ -34,18 +34,19 @@ public class Connect {
 		}
 		}
 	
-	public ResultSet query(String queryString) {
+	public ResultAndRows query(String queryString) {
 		System.out.print("in esecuzione la query: " + queryString);
 		
 		try {
 			Statement stmt = conn.createStatement();
-			stmt.execute(queryString);
 			
+			int numRows =  stmt.executeUpdate(queryString);
 			ResultSet rs = stmt.getResultSet();
 			
 			stmt.close();
 			
-			return rs;
+			
+			return new ResultAndRows(rs, numRows);
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -54,7 +55,7 @@ public class Connect {
 		return null;		
 	}
 	
-	public Object query(String queryString, Vector<String> data) {
+	public ResultAndRows query(String queryString, Vector<String> data) {
 		System.out.print("in esecuzione la query: " + queryString);
 		
 		try {
@@ -70,7 +71,7 @@ public class Connect {
 			
 			pstmt.close();
 			
-			return new Object[] {rs, numRows };
+			return new ResultAndRows(rs, numRows);
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
