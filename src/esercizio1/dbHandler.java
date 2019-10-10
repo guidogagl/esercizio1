@@ -1,6 +1,12 @@
 package esercizio1;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class dbHandler {
@@ -8,7 +14,7 @@ public class dbHandler {
 	private Boolean insert(String table, Vector<String> tableField, Vector<String> values, int numRow) {
 		// format: INSERT INTO tablename SET field1 = ?, field2 = ? ;
 		
-		String insertStr = "INSERT INTO " + table + "SET ";
+		String insertStr = "INSERT INTO " + table + " SET ";
 		
 		for(int i=0; i < tableField.capacity(); i++)
 			insertStr += tableField.get(i) + " = ?, ";
@@ -116,7 +122,8 @@ public class dbHandler {
 	}
 
 	public ResultSet getAgency(String agencyName) {
-		String sqlStr = "SELECT * FROM azienda WHERE nomeAzienda = " + agencyName;
+		String sqlStr = "SELECT * FROM azienda WHERE nomeAzienda = '" + agencyName+ "'";
+		System.out.println(sqlStr);
 		
 		Connect conn = new Connect();
 		
@@ -129,5 +136,58 @@ public class dbHandler {
 		return null;
 	}
 
-	public select
+	public List<RowTableProjects> getProject() {
+		String sqlStr = "select	p.id as id_project, p.nome, p.budget, f.budget, f.azienda\r\n" + 
+				"from	progetto as p\r\n" + 
+				"		inner join\r\n" + 
+				"        finanziamento as f\r\n" + 
+				"        on p.id = f.progetto\r\n" + 
+				"order by p.id;";
+		
+		//System.out.println(sqlStr);
+		
+		
+		//ResultAndRows result = conn.query(sqlStr);
+		
+		//ResultSet results = rs.rs_;
+		
+		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
+		
+		try {
+			Connection conn = null;
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=root");
+			PreparedStatement pstm = conn.prepareStatement(sqlStr);
+			ResultSet rs = pstm.executeQuery();
+			
+			while(rs.next()) {
+				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), "ciao", rs.getInt("budget"), rs.getInt("budget"), rs.getString("azienda")));
+				//System.out.println(rs.getInt("id_project"));
+			}
+			
+			conn.close();
+			
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return ret;
+		
+	}
+	
+	/*public List<RowTableProjects> listProjects(ResultSet rs){
+		
+		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
+		//ResultSet results = rs.rs_;
+		
+		try {
+			while(rs.next()) {
+				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("name_project"), "ciao", rs.getInt("total_budget"), rs.getInt("budget"), rs.getString("azienda")));
+				System.out.println(rs.getInt("id_project"));
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	
+		return ret;
+	}*/
 }

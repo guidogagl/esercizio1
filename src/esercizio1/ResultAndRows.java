@@ -10,4 +10,8 @@ public class ResultAndRows {
 		rs_ = rs;
 		nrow_ = nrow;
 	}
+	
+	public ResultSet returnResultSet() {
+		return rs_;
+	}
 }

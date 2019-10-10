@@ -4,30 +4,30 @@ import javafx.beans.property.*;
 
 public class RowTableProjects {
 
-	private final SimpleIntegerProperty ID_Project;
-	private final SimpleStringProperty name_project;
+	private final SimpleIntegerProperty id_project;
+	private final SimpleStringProperty nome;
 	private SimpleStringProperty progress;
-	private final SimpleIntegerProperty total_budget;
+	private final SimpleIntegerProperty budget;
 	private SimpleIntegerProperty stake;
-	private final SimpleStringProperty name_owner;
+	private final SimpleStringProperty azienda;
 	
 	public RowTableProjects(int ID_Project, String name_project, String progress, int total_budget, int stake, String name_owner) {
 		
-		this.ID_Project = new SimpleIntegerProperty(ID_Project);
-		this.name_project = new SimpleStringProperty(name_project);
+		this.id_project = new SimpleIntegerProperty(ID_Project);
+		this.nome = new SimpleStringProperty(name_project);
 		this.progress = new SimpleStringProperty(progress);
-		this.total_budget = new SimpleIntegerProperty(total_budget);
+		this.budget = new SimpleIntegerProperty(total_budget);
 		this.stake = new SimpleIntegerProperty(stake);
-		this.name_owner = new SimpleStringProperty(name_owner);
+		this.azienda = new SimpleStringProperty(name_owner);
 		
 		
 	}
 	
-	public Integer getIDProject() {return ID_Project.get();}
-	public String getNameProject() {return name_project.get();}
+	public Integer getId_project() {return id_project.get();}
+	public String getNome() {return nome.get();}
 	public String getProgress() {return progress.get();}
-	public Integer getTotalBudget() {return total_budget.get();}
+	public Integer getBudget() {return budget.get();}
 	public Integer getStake() {return stake.get();}
-	public String getNameOwner() {return name_owner.get();}
+	public String getAzienda() {return azienda.get();}
 	
 }

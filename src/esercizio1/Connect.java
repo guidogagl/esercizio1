@@ -10,7 +10,7 @@ import java.util.Vector;
 
 public class Connect {
 	
-	private String connStr = "jdbc:mysql://localhost:3306/foundraising_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=gagliardi";
+	private String connStr = "jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=root";
 	private Connection conn = null;
 	
 	public Connect(){
@@ -38,11 +38,19 @@ public class Connect {
 		System.out.print("in esecuzione la query: " + queryString);
 		
 		try {
+			int numRows = 0;
+			
 			Statement stmt = conn.createStatement();
 			
-			int numRows =  stmt.executeUpdate(queryString);
+			//int numRows =  stmt.executeUpdate(queryString);
+			stmt.execute(queryString);
+			
 			ResultSet rs = stmt.getResultSet();
 			
+			while(rs.next()) {
+				numRows++;
+			}
+		
 			stmt.close();
 			
 			
@@ -61,8 +69,13 @@ public class Connect {
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(queryString);
 			
-			for(int i=0; i < data.capacity() ; i++)
-				pstmt.setString(i, data.get(i));
+			System.out.println("Vector capacity: " + data.capacity());
+			
+			for(int i=0; i < data.capacity() ; i++) {
+				System.out.println("i: "+ i);
+				System.out.println("data: " + data.get(i));
+				pstmt.setString(i+1, data.get(i));
+			}
 			
 			int numRows = pstmt.executeUpdate();
 			System.out.print("number of row affected: " + numRows);

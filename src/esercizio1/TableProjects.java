@@ -12,22 +12,22 @@ public class TableProjects extends TableView<RowTableProjects>{
     	setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     	
     	TableColumn ID_Project = new TableColumn("ID_Project"); 
-    	ID_Project.setCellValueFactory(new PropertyValueFactory<>("ID_Project")); 
+    	ID_Project.setCellValueFactory(new PropertyValueFactory<>("id_project")); 
     	
     	TableColumn name_project = new TableColumn("name_project"); 
-    	name_project.setCellValueFactory(new PropertyValueFactory<>("name_project")); 
+    	name_project.setCellValueFactory(new PropertyValueFactory<>("nome")); 
     	
     	TableColumn progress = new TableColumn("progress"); 
     	progress.setCellValueFactory(new PropertyValueFactory<>("progress")); 
     	
     	TableColumn total_budget = new TableColumn("total_budget"); 
-    	total_budget.setCellValueFactory(new PropertyValueFactory<>("total_budget")); 
+    	total_budget.setCellValueFactory(new PropertyValueFactory<>("budget")); 
     	
     	TableColumn stake = new TableColumn("stake"); 
     	stake.setCellValueFactory(new PropertyValueFactory<>("stake"));
     	
     	TableColumn name_owner = new TableColumn("name_owner"); 
-    	name_owner.setCellValueFactory(new PropertyValueFactory<>("name_owner"));
+    	name_owner.setCellValueFactory(new PropertyValueFactory<>("azienda"));
     	
     	
     	projectsList = FXCollections.observableArrayList();
@@ -39,5 +39,7 @@ public class TableProjects extends TableView<RowTableProjects>{
     public void updateProjects(List<RowTableProjects> projects) {
     	projectsList.clear();
     	projectsList.addAll(projects);
+    	/*projectsList = FXCollections.observableArrayList(projects);
+    	projectsList.addAll(projects);*/
     }
 }
