@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Date;
 import java.text.*;
 import java.time.*;
@@ -44,6 +45,9 @@ public class Fundracing extends Application{
 	protected String agencyName = "";
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
+	private Label name_agency = new Label("");
+	private Label address_agency = new Label("");
+	private Label site_agency = new Label("");
 	
 	
 	public void start(Stage stage) {
@@ -51,7 +55,6 @@ public class Fundracing extends Application{
 		DepositoDati deposito = new DepositoDati();
 		
 		Image image = new Image("file:///C:\\Users\\Utente\\eclipse-workspace\\FundracingProject\\src\\fundracing_package\\pippo.jpg");
-				
 		ImageView iv1 = new ImageView();
         iv1.setImage(image);
 		
@@ -60,7 +63,8 @@ public class Fundracing extends Application{
 		selectTableRow();
 		
 		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
-				description, name_project, total_budget, insert, delete, iv1, stake, update);
+				description, name_project, total_budget, insert, delete, iv1, stake, update,
+				name_agency, address_agency, site_agency);
 		
 		
 		
@@ -78,6 +82,10 @@ public class Fundracing extends Application{
 				total_budget.setEditable(true);
 				stake.setEditable(true);
 				update.setDisable(false);
+				Vector<String> result = deposito.getAgency(agencyName);
+				name_agency.setText(result.get(0)); 
+				address_agency.setText(result.get(3));
+				site_agency.setText(result.get(4));
 			}
 			
         });
@@ -119,7 +127,7 @@ public class Fundracing extends Application{
 		
 		
 		Group root = new Group(tf_companyName, submit, table_title, table, description,
-				name_project, total_budget, insert, delete, iv1, stake, update);
+				name_project, total_budget, insert, delete, iv1, stake, update, name_agency, address_agency, site_agency);
 		
 		
 		

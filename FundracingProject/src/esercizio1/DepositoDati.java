@@ -43,14 +43,32 @@ public class DepositoDati {
 				"        on p.id = f.progetto\r\n" +
 				"where p.azienda = (?)\r\n" +
 				"order by p.id;";
+		String sqlStr2 = "select	p.id as id_project, p.nome, p.budget, f.budget as stake, f.azienda\r\n" + 
+				"from	progetto as p\r\n" + 
+				"		inner join\r\n" + 
+				"        finanziamento as f\r\n" + 
+				"        on p.id = f.progetto\r\n" +
+				"where p.azienda != (?)\r\n" +
+				"order by p.id;";
+		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
+		
 		try {
 			PreparedStatement pstm = conn.prepareStatement(sqlStr);
 			pstm.setString(1, agencyName);
 			ResultSet rs = pstm.executeQuery();
+			
+			PreparedStatement pstm2 = conn.prepareStatement(sqlStr2);
+			pstm2.setString(1, agencyName);
+			ResultSet rs2 = pstm2.executeQuery();
+			
 			while(rs.next()) {
 				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), "ciao", rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
-				System.out.println(rs.getInt("id_project"));
+				//System.out.println(rs.getInt("id_project"));
+			}
+			
+			while(rs2.next()) {
+				ret.add(new RowTableProjects(rs2.getInt("id_project"), rs2.getString("nome"), "ciao", rs2.getInt("budget"), rs2.getInt("stake"), rs2.getString("azienda")));
 			}
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
