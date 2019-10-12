@@ -40,7 +40,7 @@ public class Interface {
 		
 		table.setLayoutX(130);
 		table.setLayoutY(200);
-		table.setMaxHeight(140);
+		table.setMaxHeight(140); 
 		
 		description.setLayoutX(130);
 		description.setLayoutY(400);
