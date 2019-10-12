@@ -21,9 +21,9 @@ public class Interface {
 		
 		name_agency.setLayoutX(350);
 		name_agency.setLayoutY(40);
-		name_agency.setStyle("-fx-font-weight: bold;");
+		name_agency.setStyle("-fx-font-weight: bold;  -fx-font-size: 18px;");
 		
-		address_agency.setLayoutX(320);
+		address_agency.setLayoutX(300);
 		address_agency.setLayoutY(70);
 		address_agency.setStyle("-fx-font-weight: bold;");
 		

@@ -116,7 +116,7 @@ public class Fundracing extends Application{
 				address_agency.setText(result.get(3));
 				site_agency.setText(result.get(4));
 				
-				urlLogo = deposito.getUrl(agencyName);
+				urlLogo = deposito.getAgency(agencyName).get(1);
 				
 				
 				image = new Image(urlLogo);
