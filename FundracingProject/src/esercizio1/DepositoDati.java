@@ -36,6 +36,7 @@ public class DepositoDati {
 	}
 	
 	public List<RowTableProjects> getProjects(String agencyName){
+
 		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, f.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
 				"from	progetto as p\r\n" + 
 				"		inner join\r\n" + 
@@ -44,13 +45,28 @@ public class DepositoDati {
 				"where p.azienda = (?)\r\n" +
 				"group by f.progetto;";
 		
-		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, f.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
-				"from	progetto as p\r\n" + 
-				"		inner join\r\n" + 
-				"        finanziamento as f\r\n" + 
-				"        on p.id = f.progetto\r\n" +
-				"where p.azienda != (?)\r\n" +
-				"group by f.progetto, f.azienda;";
+		String sqlStr2 = "select	f.progetto as id_project, p.nome as nome, (sum(f.budget)/p.budget)*100 as progress, p.budget, 0 as stake, p.azienda\r\n" + 
+				"				from	progetto as p\r\n" + 
+				"						inner join\r\n" + 
+				"                        finanziamento as f\r\n" + 
+				"                        on p.id = f.progetto\r\n" + 
+				"				where	p.id not in (\r\n" + 
+				"					select	p.id\r\n" + 
+				"					from	progetto as p\r\n" + 
+				"							inner join \r\n" + 
+				"					        finanziamento as f\r\n" + 
+				"					        on p.id = f.progetto\r\n" + 
+				"					where p.azienda = (?)\r\n" + 
+				"                ) and p.id not in (\r\n" + 
+				"					select	p.id\r\n" + 
+				"					from	progetto as p\r\n" + 
+				"							inner join \r\n" + 
+				"					        finanziamento as f\r\n" + 
+				"					        on p.id = f.progetto\r\n" + 
+				"					where f.azienda = (?)\r\n" + 
+				"						and p.azienda != (?)\r\n" + 
+				"                )\r\n" + 
+				"group by	f.progetto, f.azienda;";
 		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		
@@ -61,11 +77,12 @@ public class DepositoDati {
 			
 			PreparedStatement pstm2 = conn.prepareStatement(sqlStr2);
 			pstm2.setString(1, agencyName);
+			pstm2.setString(2, agencyName);
+			pstm2.setString(3, agencyName);
 			ResultSet rs2 = pstm2.executeQuery();
 			
 			while(rs.next()) {
 				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), rs.getString("progress"), rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
-				//System.out.println(rs.getInt("id_project"));
 			}
 			
 			while(rs2.next()) {
@@ -78,16 +95,19 @@ public class DepositoDati {
 	}
 	
 	public List<RowTableProjects> getProjectsWithoutStake(){
-		String sqlStr = "select	p.id as id_project, p.nome, p.budget, p.azienda\r\n" + 
+		String sqlStr = "select	f.progetto as id_project, f.azienda as nome, (sum(f.budget)/p.budget)*100 as progress, p.budget, p.azienda\r\n" + 
 				"from	progetto as p\r\n" + 
-				"order by p.id;";
+				"		inner join\r\n" + 
+				"        finanziamento as f\r\n" + 
+				"        on p.id = f.progetto\r\n" + 
+				"group by f.progetto, f.azienda;";
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		try {
 			PreparedStatement pstm = conn.prepareStatement(sqlStr);
 			ResultSet rs = pstm.executeQuery();
 			
 			while(rs.next()) {
-				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), "ciao", rs.getInt("budget"), 0, rs.getString("azienda")));
+				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), rs.getString("progress"), rs.getInt("budget"), 0, rs.getString("azienda")));
 			}
 			
 		}catch(SQLException e) {
@@ -150,9 +170,32 @@ public class DepositoDati {
 	}
 	
 	
-	public void deleteProject(int projectId, String agencyName) {
+	public boolean sonoProprietario(int projectId,String agencyName) {
+		boolean check=false;
+		int numeroOccorrenze=0;
+		String checkProprietarioQuery="SELECT COUNT(*) as conta FROM progetto WHERE id=(?) and azienda=(?)";
+		try 
+		{
+			PreparedStatement pstm=conn.prepareStatement(checkProprietarioQuery);
+			pstm.setInt(1, projectId);
+			pstm.setString(2, agencyName);
+			ResultSet res = pstm.executeQuery();
+			
+			while(res.next()) {
+				numeroOccorrenze=res.getInt("conta");
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		if(numeroOccorrenze>0)
+			check=true;
+		return check;
+	}
+	
+	
+	public void deleteProject(int projectId) {
 		String deleteProjectQuery="DELETE FROM progetto WHERE id =(?)";
-		String deleteFinanziamentoQuery = "DELETE FROM finanziamento WHERE azienda = (?) and progetto = (?)";
+		String deleteFinanziamentoQuery = "DELETE FROM finanziamento WHERE progetto = (?)";
 		
 		try {
 			PreparedStatement pstm=conn.prepareStatement(deleteProjectQuery);
@@ -160,8 +203,7 @@ public class DepositoDati {
 			pstm.execute();
 			
 			PreparedStatement pstm2=conn.prepareStatement(deleteFinanziamentoQuery);
-			pstm2.setString(1, agencyName);
-			pstm2.setInt(2, projectId);
+			pstm2.setInt(1, projectId);
 			pstm.execute();
 			
 		}catch(SQLException e) {
@@ -221,4 +263,64 @@ public class DepositoDati {
 		return vector;
 	}
 	
+	public String getDescriptionProject(int id_project) {
+		String str = "SELECT descrizione FROM progetto WHERE id = (?)";
+		String desc = "";
+
+		try {
+					
+					PreparedStatement pstm=conn.prepareStatement(str);
+					pstm.setInt(1, id_project);
+					ResultSet res = pstm.executeQuery();
+					
+					while(res.next()) {
+						desc = res.getString("descrizione");
+					}
+					
+				}catch(SQLException e) {
+					System.out.println(e.getMessage());
+				}
+		return desc;
+	}
+	
+	public Boolean myStake(String agencyName, int id_project) {
+		
+		int numeroOccorrenze = 0;
+		Boolean check = false;
+		
+		String str = "SELECT count(*) as conta FROM finanziamento WHERE progetto = (?) and azienda = (?);";
+		
+		try {
+			
+			PreparedStatement pstm=conn.prepareStatement(str);
+			pstm.setInt(1, id_project);
+			pstm.setString(2, agencyName);
+			ResultSet res = pstm.executeQuery();
+			
+			while(res.next()) {
+				numeroOccorrenze=res.getInt("conta");
+			}
+			
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		if(numeroOccorrenze>0)
+			check=true;
+		return check;
+	}
+	
+	
+	public void deleteMyStakes(int projectId,String agencyName) {
+
+		String deleteMyStakesQuery = "DELETE FROM finanziamento WHERE progetto = (?) and azienda = (?)";
+		try {
+			PreparedStatement pstm=conn.prepareStatement(deleteMyStakesQuery);
+			pstm.setInt(1, projectId);
+			pstm.setString(2,agencyName);
+			pstm.execute();
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 }

@@ -1,5 +1,6 @@
 package esercizio1;
 
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +12,11 @@ import java.time.*;
 import java.util.*;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javafx.scene.image.*;
@@ -45,25 +51,40 @@ public class Fundracing extends Application{
 	protected String agencyName = "";
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
+	private String selectedProjectAgency="";
 	private Label name_agency = new Label("");
 	private Label address_agency = new Label("");
 	private Label site_agency = new Label("");
+	private DepositoDati deposito = new DepositoDati();
+	private JLabel label;
 	
 	
 	public void start(Stage stage) {
 		
-		DepositoDati deposito = new DepositoDati();
-		
-		Image image = new Image("file:///C:\\Users\\Utente\\eclipse-workspace\\FundracingProject\\src\\fundracing_package\\pippo.jpg");
+		/*Image image = new Image("http://www.mkyong.com/image/mypic.jpg");
 		ImageView iv1 = new ImageView();
-        iv1.setImage(image);
-		
+        iv1.setImage(image);*/
+		BufferedImage image = null;
+		try {
+			URL url = new URL("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/793px-Tesla_Motors.svg.png");
+			System.out.println("url: "+ url);
+			image = ImageIO.read(url);
+			label = new JLabel(new ImageIcon(image));
+		    JFrame f = new JFrame();
+		    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    f.getContentPane().add(label);
+		    f.pack();
+		    f.setLocation(200,200);
+		    f.setVisible(true);
+	    }catch(Exception e) {
+	    	System.out.println("catch: " + e.getMessage());
+	    }
 		
 		table.updateProjects(deposito.getProjectsWithoutStake());
 		selectTableRow();
 		
 		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
-				description, name_project, total_budget, insert, delete, iv1, stake, update,
+				description, name_project, total_budget, insert, delete, /*iv1,*/ stake, update,
 				name_agency, address_agency, site_agency);
 		
 		
@@ -72,6 +93,7 @@ public class Fundracing extends Application{
 			
 			agencyName = tf_companyName.getText();
 			
+			//Se il nome dell'azienda è presente nel db
 			if(!deposito.getAgency(agencyName).isEmpty()) {
 				table.updateProjects(deposito.getProjects(agencyName));
 				logged = true;
@@ -86,6 +108,9 @@ public class Fundracing extends Application{
 				name_agency.setText(result.get(0)); 
 				address_agency.setText(result.get(3));
 				site_agency.setText(result.get(4));
+			} //Se il nome dell'azienda non è presente nel db
+			else {
+				JOptionPane.showMessageDialog(null, "Il nome dell'azienda è errato!");
 			}
 			
         });
@@ -118,19 +143,32 @@ public class Fundracing extends Application{
 					}
 		        });
 		
+		
 			delete.setOnAction((ActionEvent ev1)->{
-						
-				deposito.deleteProject(selectedProjectId, agencyName);
-				table.updateProjects(deposito.getProjects(agencyName));
+				
+				//Se sono il proprietario
+				if(deposito.sonoProprietario(selectedProjectId, agencyName)) {
+					deposito.deleteProject(selectedProjectId);
+					table.updateProjects(deposito.getProjects(agencyName));
+				}//Se non sono il proprietario ma voglio levare il mio stake
+				else if(deposito.sonoProprietario(selectedProjectId, agencyName)==false &&
+						deposito.myStake(agencyName, selectedProjectId) == true) {
+					deposito.deleteMyStakes(selectedProjectId, agencyName);
+					table.updateProjects(deposito.getProjects(agencyName));
+				}//Se cerco di eliminare il progetto o lo stake di un altro
+				else {
+					JOptionPane.showMessageDialog(null, "Puoi eliminare solo i tuoi progetti!");
+				}
 			});
 		
 		
 		
 		Group root = new Group(tf_companyName, submit, table_title, table, description,
-				name_project, total_budget, insert, delete, iv1, stake, update, name_agency, address_agency, site_agency);
+				name_project, total_budget, insert, delete, /*iv1,*/ stake, update, 
+				name_agency, address_agency, site_agency);
 		
 		
-		
+	
 		Scene scene = new Scene(root, 750, 650);
         stage.setTitle("My Fundracing Project");
         stage.setScene(scene);
@@ -153,22 +191,12 @@ public class Fundracing extends Application{
                 
             public void handle(MouseEvent event) {  
                 final int index = row.getIndex(); 
-                System.out.println("row selected: "+index);
-               RowTableProjects res = table.getItems().get(index);
-               selectedProjectId = res.getId_project();
-               //System.out.println("ID: " + res.getId_project());
-                /*if(!tabellaMovimenti.getSelectionModel().isSelected(index)){
-                    String[] dataOra = RitornaDataOraCorrenti();
-                    Evento e = new Evento(dataOra[0], dataOra[1], "SELEZIONE RIGA TABELLA");
-                    EventoDiNavigazioneGUI.serializzaXML(e);
-                }
-                if (index >= 0 && index < tabellaMovimenti.getItems().size() && tabellaMovimenti.getSelectionModel().isSelected(index)  ) {
-                    tabellaMovimenti.getSelectionModel().clearSelection();
-                    event.consume();
-                    cancella.setDisable(true);
-                }*/ 
+                RowTableProjects res = table.getItems().get(index);
+                selectedProjectId = res.getId_project();
+                selectedProjectAgency=res.getAzienda();
+                description.setText(deposito.getDescriptionProject(selectedProjectId));
             }  
-            });  
+         });  
             return row;  
         }  
         }); 
