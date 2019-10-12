@@ -314,6 +314,7 @@ public class DepositoDati {
 	public void deleteMyStakes(int projectId,String agencyName) {
 
 		String deleteMyStakesQuery = "DELETE FROM finanziamento WHERE progetto = (?) and azienda = (?)";
+		
 		try {
 			PreparedStatement pstm=conn.prepareStatement(deleteMyStakesQuery);
 			pstm.setInt(1, projectId);
@@ -322,5 +323,28 @@ public class DepositoDati {
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+	
+	
+	public String getUrl(String agencyName) {
+		
+		String urlLogo = "";
+		
+		String strQuery = "SELECT urlLogo FROM azienda WHERE nomeAzienda = (?);";
+		
+		try {
+			PreparedStatement pstm=conn.prepareStatement(strQuery);
+			pstm.setString(1, agencyName);
+			ResultSet res = pstm.executeQuery();
+			
+			while(res.next()) {
+				urlLogo = res.getString("urlLogo");
+			}
+			
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return urlLogo;
 	}
 }

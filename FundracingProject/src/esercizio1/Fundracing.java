@@ -57,18 +57,23 @@ public class Fundracing extends Application{
 	private Label site_agency = new Label("");
 	private DepositoDati deposito = new DepositoDati();
 	private JLabel label;
+	private Image image;
+	private ImageView iv1 = new ImageView();
 	
 	
 	public void start(Stage stage) {
 		
-		/*Image image = new Image("http://www.mkyong.com/image/mypic.jpg");
-		ImageView iv1 = new ImageView();
-        iv1.setImage(image);*/
-		BufferedImage image = null;
+		
+		/*BufferedImage image = null;
 		try {
 			URL url = new URL("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/793px-Tesla_Motors.svg.png");
 			System.out.println("url: "+ url);
 			image = ImageIO.read(url);
+			
+			ImageView iv1 = new ImageView();
+			Image image = SwingFXUtils.toFXImage(image, null);
+	        iv1.setImage(image);
+			
 			label = new JLabel(new ImageIcon(image));
 		    JFrame f = new JFrame();
 		    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,18 +83,20 @@ public class Fundracing extends Application{
 		    f.setVisible(true);
 	    }catch(Exception e) {
 	    	System.out.println("catch: " + e.getMessage());
-	    }
+	    }*/
 		
 		table.updateProjects(deposito.getProjectsWithoutStake());
 		selectTableRow();
 		
-		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
-				description, name_project, total_budget, insert, delete, /*iv1,*/ stake, update,
-				name_agency, address_agency, site_agency);
+		/*Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
+				description, name_project, total_budget, insert, delete, iv1, stake, update,
+				name_agency, address_agency, site_agency);*/
 		
 		
 		
 		submit.setOnAction((ActionEvent ev1)->{
+			
+			String urlLogo = "";
 			
 			agencyName = tf_companyName.getText();
 			
@@ -108,12 +115,24 @@ public class Fundracing extends Application{
 				name_agency.setText(result.get(0)); 
 				address_agency.setText(result.get(3));
 				site_agency.setText(result.get(4));
+				
+				urlLogo = deposito.getUrl(agencyName);
+				
+				
+				image = new Image(urlLogo);
+				//iv1 = new ImageView();
+		        iv1.setImage(image);
+				
 			} //Se il nome dell'azienda non è presente nel db
 			else {
 				JOptionPane.showMessageDialog(null, "Il nome dell'azienda è errato!");
 			}
 			
         });
+		
+		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
+				description, name_project, total_budget, insert, delete, iv1, stake, update,
+				name_agency, address_agency, site_agency);
 		
 		
 		insert.setOnAction((ActionEvent ev2)->{
@@ -164,7 +183,7 @@ public class Fundracing extends Application{
 		
 		
 		Group root = new Group(tf_companyName, submit, table_title, table, description,
-				name_project, total_budget, insert, delete, /*iv1,*/ stake, update, 
+				name_project, total_budget, insert, delete, iv1, stake, update, 
 				name_agency, address_agency, site_agency);
 		
 		
