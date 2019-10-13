@@ -11,11 +11,12 @@ public class Interface {
 
 	Interface(Button submit, TextField tf_companyName, Label table_title, TableProjects table, 
 			TextArea description, TextField name_project, TextField total_budget, Button insert, Button delete,
-			ImageView iv1, TextField stake, Button update, Label name_agency, Label address_agency, Label site_agency){
+			ImageView iv1, TextField stake, Button update, Label name_agency, Label address_agency, Label site_agency,
+			TextField tf_password){
 		
-		//Abbasso tutte le y di 20
+		
 		submit.setLayoutX(545);
-		submit.setLayoutY(75);
+		submit.setLayoutY(105);
 		submit.setMinSize(70, 30);
 		submit.setStyle("-fx-font-weight: bold;");
 		
@@ -33,6 +34,9 @@ public class Interface {
 		
 		tf_companyName.setLayoutX(500);
 		tf_companyName.setLayoutY(35);
+		
+		tf_password.setLayoutX(500);
+		tf_password.setLayoutY(70);		
 		
 		table_title.setLayoutX(300);
 		table_title.setLayoutY(160);

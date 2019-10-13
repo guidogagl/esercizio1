@@ -37,7 +37,8 @@ import javafx.util.*;
 
 public class Fundracing extends Application{
 	
-	protected TextField tf_companyName = new TextField();
+	protected TextField tf_companyName = new TextField("Company Name");
+	protected TextField tf_password = new TextField("Password");
 	protected Button submit = new Button("Submit");
 	protected Label table_title = new Label("NetworkProjects");
 	protected TextArea description = new TextArea();
@@ -52,6 +53,8 @@ public class Fundracing extends Application{
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
 	private String selectedProjectAgency="";
+	private int selectedTotalBudget = 0;
+	private int selectedStake = 0;
 	private Label name_agency = new Label("");
 	private Label address_agency = new Label("");
 	private Label site_agency = new Label("");
@@ -64,34 +67,8 @@ public class Fundracing extends Application{
 	public void start(Stage stage) {
 		
 		
-		/*BufferedImage image = null;
-		try {
-			URL url = new URL("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/793px-Tesla_Motors.svg.png");
-			System.out.println("url: "+ url);
-			image = ImageIO.read(url);
-			
-			ImageView iv1 = new ImageView();
-			Image image = SwingFXUtils.toFXImage(image, null);
-	        iv1.setImage(image);
-			
-			label = new JLabel(new ImageIcon(image));
-		    JFrame f = new JFrame();
-		    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		    f.getContentPane().add(label);
-		    f.pack();
-		    f.setLocation(200,200);
-		    f.setVisible(true);
-	    }catch(Exception e) {
-	    	System.out.println("catch: " + e.getMessage());
-	    }*/
-		
 		table.updateProjects(deposito.getProjectsWithoutStake());
 		selectTableRow();
-		
-		/*Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
-				description, name_project, total_budget, insert, delete, iv1, stake, update,
-				name_agency, address_agency, site_agency);*/
-		
 		
 		
 		submit.setOnAction((ActionEvent ev1)->{
@@ -130,9 +107,48 @@ public class Fundracing extends Application{
 			
         });
 		
+		
+		/*update.setOnAction((ActionEvent ev1)->{
+			
+			if(selectedStake >= selectedTotalBudget) {
+				JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obbiettivo prefissato!");
+			}else if(Integer.parseInt(stake.getText()) > selectedStake) {
+				deposito.updateStake(Integer.parseInt(stake.getText()),agencyName,selectedProjectId);
+				table.updateProjects(deposito.getProjects(agencyName));
+				stake.setText("");
+			}else {
+				JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");
+			}
+		});*/
+		
+		
+		update.setOnAction((ActionEvent ev1)->{
+			int stakeInsered=Integer.parseInt(stake.getText());
+			//se ho già raggiunto l'obiettivo
+			if(selectedStake>=selectedTotalBudget) {
+				JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
+			} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
+			else if(stakeInsered>selectedStake) {
+				int difference=0;
+				//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
+				if(stakeInsered>selectedTotalBudget)
+					difference=selectedTotalBudget-selectedStake;
+				else //altrimenti metto la differenza tra newStake e oldStake(poichè non aggiorniamo lo stake nel database,ma aggiungiamo nuovo finanziamento
+					difference=stakeInsered-selectedStake;
+				deposito.updateStake(difference,agencyName,selectedProjectId);
+				table.updateProjects(deposito.getProjects(agencyName));
+				stake.setText("");
+			} //policy:non posso diminuire il finanziamento fatto
+			else {
+				JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
+			}
+		});
+	
+		
+		
 		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
 				description, name_project, total_budget, insert, delete, iv1, stake, update,
-				name_agency, address_agency, site_agency);
+				name_agency, address_agency, site_agency, tf_password);
 		
 		
 		insert.setOnAction((ActionEvent ev2)->{
@@ -176,7 +192,7 @@ public class Fundracing extends Application{
 					table.updateProjects(deposito.getProjects(agencyName));
 				}//Se cerco di eliminare il progetto o lo stake di un altro
 				else {
-					JOptionPane.showMessageDialog(null, "Puoi eliminare solo i tuoi progetti!");
+					JOptionPane.showMessageDialog(null, "Puoi eliminare solo i tuoi progetti o finanziamenti!");
 				}
 			});
 		
@@ -184,7 +200,7 @@ public class Fundracing extends Application{
 		
 		Group root = new Group(tf_companyName, submit, table_title, table, description,
 				name_project, total_budget, insert, delete, iv1, stake, update, 
-				name_agency, address_agency, site_agency);
+				name_agency, address_agency, site_agency, tf_password);
 		
 		
 	
@@ -213,6 +229,7 @@ public class Fundracing extends Application{
                 RowTableProjects res = table.getItems().get(index);
                 selectedProjectId = res.getId_project();
                 selectedProjectAgency=res.getAzienda();
+                selectedTotalBudget = res.getBudget();
                 description.setText(deposito.getDescriptionProject(selectedProjectId));
             }  
          });  

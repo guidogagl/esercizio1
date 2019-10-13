@@ -229,19 +229,20 @@ public class DepositoDati {
 		}
 	}
 	
-	public void updateStake(int stakeId,int stakeBudget) {
-		String updateStr="UPDATE finanziamento SET budget = (?) WHERE id = (?)";
+	public void updateStake(int stakeBudget, String agencyName, int idProgetto) {
+		String updateStr="INSERT INTO finanziamento (budget, azienda, progetto) VALUES ((?), (?), (?))";
 		try {
 			PreparedStatement pstm=conn.prepareStatement(updateStr);
 			pstm.setInt(1,stakeBudget);
-			pstm.setInt(2,stakeId);
+			pstm.setString(2,agencyName);
+			pstm.setInt(3,idProgetto);
 			pstm.executeUpdate();
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
 	
-	public void deleteStake(int stakeId) {
+	/*public void deleteStake(int stakeId) {
 		String deleteStr="DELETE FROM finanziamento WHERE id =(?)";
 		try {
 			PreparedStatement pstm=conn.prepareStatement(deleteStr);
@@ -250,7 +251,7 @@ public class DepositoDati {
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
-	}
+	}*/
 	
 	
 	public Vector<String> getAgency(String agencyName) {
