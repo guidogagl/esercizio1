@@ -14,7 +14,7 @@ import java.util.Vector;
 public class DepositoDati {
 	
 	private Connection conn;
-	private String connStr = "jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=root";
+	private String connStr = "jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=gagliardi";
 	
 	public DepositoDati() {
 		try {
@@ -37,31 +37,13 @@ public class DepositoDati {
 	
 	public List<RowTableProjects> getProjects(String agencyName){
 
-		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, f.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
-				"from	progetto as p\r\n" + 
-				"		inner join\r\n" + 
-				"        finanziamento as f\r\n" + 
-				"        on p.id = f.progetto\r\n" +
-				"where p.azienda = (?)\r\n" +
-				"group by f.progetto;";
-		
-		String sqlStr2 = "select	p.id, p.nome as proprietario, p.budget, 0 as stake\r\n" + 
-				"				from	progetto as p\r\n" + 
-				"				where	p.id not in (\r\n" + 
-				"					select	p.id\r\n" + 
-				"					from	progetto as p\r\n" + 
-				"							inner join \r\n" + 
-				"					        finanziamento as f\r\n" + 
-				"					        on p.id = f.progetto\r\n" + 
-				"					where p.azienda = 'Tesla'\r\n" + 
-				"                ) and p.id not in (\r\n" + 
-				"					select	p.id\r\n" + 
-				"					from	progetto as p\r\n" + 
-				"							inner join \r\n" + 
-				"					        finanziamento as f\r\n" + 
-				"					        on p.id = f.progetto\r\n" + 
-				"					where f.azienda = 'Tesla'\r\n" + 
-				"                );";
+		String sqlStr = "select f1.id_project, f1.nome, f1.budget, max(f1.stake) as stake, f1.azienda\n" + 
+				"from  (\n" + 
+				"select f.progetto as id_project, p.nome, p.budget, case when f.azienda = ? then f.budget else 0 end as stake, p.azienda\n" + 
+				"from finanziamento f inner join progetto p on f.progetto = p.id\n" + 
+				"order by stake desc\n" + 
+				"    ) as f1\n" + 
+				"group by f1.id_project";
 		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		
@@ -70,18 +52,11 @@ public class DepositoDati {
 			pstm.setString(1, agencyName);
 			ResultSet rs = pstm.executeQuery();
 			
-			PreparedStatement pstm2 = conn.prepareStatement(sqlStr2);
-			pstm2.setString(1, agencyName);
-			ResultSet rs2 = pstm2.executeQuery();
-			
 			while(rs.next()) {
 				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), rs.getString("progress"), rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
 				//System.out.println(rs.getInt("id_project"));
 			}
 			
-			while(rs2.next()) {
-				ret.add(new RowTableProjects(rs2.getInt("id_project"), rs2.getString("nome"), rs2.getString("progress"), rs2.getInt("budget"), rs2.getInt("stake"), rs2.getString("azienda")));
-			}
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
