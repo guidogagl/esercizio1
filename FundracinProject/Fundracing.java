@@ -80,7 +80,7 @@ public class Fundracing extends Application{
 			String password=tf_password.getText();
 			Vector<String> result = deposito.getAgency(agencyName,password);
 			
-			//Se il nome dell'azienda � presente nel db e la password � corretta
+			//Se il nome dell'azienda è presente nel db e la password è corretta
 			if(!result.isEmpty()) {
 				table.updateProjects(deposito.getProjects(agencyName));
 				logged = true;
@@ -98,9 +98,9 @@ public class Fundracing extends Application{
 				image = new Image(urlLogo);
 				iv1.setImage(image);
 				
-			} //Se il nome dell'azienda non � presente nel db
+			} //Se il nome dell'azienda non è presente nel db
 			else {
-				JOptionPane.showMessageDialog(null, "Il nome dell'azienda � errato oppure la password � scorretta!");
+				JOptionPane.showMessageDialog(null, "Il nome dell'azienda è errato oppure la password è scorretta!");
 			}
 			
         });
@@ -156,14 +156,26 @@ public class Fundracing extends Application{
 			});
 			
 			update.setOnAction((ActionEvent ev1)->{
-				
-				//Prendo lo stake digitato dall'utente
 				int stakeInsered=Integer.parseInt(stake.getText());
-				int totalStakes = deposito
-				
-				deposito.updateStake(stakeInsered, agencyName, selectedProjectId);
-				
-				
+				int totalStakes=deposito.getSommaStakes(selectedProjectId);
+				//se ho già raggiunto l'obiettivo
+				if(totalStakes>=selectedTotalBudget) {
+					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
+				} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
+				else  {
+					int newStake=0;
+					//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso,quindi il nuovo stake è il budget finale
+					if(stakeInsered>selectedTotalBudget)
+						newStake=selectedTotalBudget;
+					else //altrimenti il nuovo stake sarà semplicemente quello inserito
+						newStake=stakeInsered;
+					deposito.updateStake(newStake,agencyName,selectedProjectId);
+					table.updateProjects(deposito.getProjects(agencyName));
+					stake.setText("");
+				} //policy:non posso diminuire il finanziamento fatto
+				/*else {
+					JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
+				}*/
 			});
 		
 		
