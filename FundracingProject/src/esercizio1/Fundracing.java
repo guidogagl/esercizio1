@@ -157,32 +157,13 @@ public class Fundracing extends Application{
 			
 			update.setOnAction((ActionEvent ev1)->{
 				
-				//Se non esiste un finanziamento per il progetto selezionato da parte dell'azienda che ha fatto il login
-				if(deposito.myStake(agencyName, selectedProjectId) == false) {
-					//Inserisco un nuovo finanziamento
-				}
+				//Prendo lo stake digitato dall'utente
+				int stakeInsered=Integer.parseInt(stake.getText());
+				int totalStakes = deposito
+				
+				deposito.updateStake(stakeInsered, agencyName, selectedProjectId);
 				
 				
-				/*int stakeInsered=Integer.parseInt(stake.getText());
-				int totalStakes=deposito.getSommaStakes(selectedProjectId);
-				//se ho già raggiunto l'obiettivo
-				if(totalStakes>=selectedTotalBudget) {
-					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
-				} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
-				else if(stakeInsered>totalStakes) {
-					int difference=0;
-					//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
-					if(stakeInsered>selectedTotalBudget)
-						difference=selectedTotalBudget-stakeInsered;
-					else //altrimenti metto la differenza tra newStake e oldStake(poichè non aggiorniamo lo stake nel database,ma aggiungiamo nuovo finanziamento
-						difference=stakeInsered-totalStakes;
-					deposito.updateStake(difference,agencyName,selectedProjectId);
-					table.updateProjects(deposito.getProjects(agencyName));
-					stake.setText("");
-				} //policy:non posso diminuire il finanziamento fatto
-				else {
-					JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
-				}*/
 			});
 		
 		
