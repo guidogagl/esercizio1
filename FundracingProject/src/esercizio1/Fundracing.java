@@ -156,7 +156,14 @@ public class Fundracing extends Application{
 			});
 			
 			update.setOnAction((ActionEvent ev1)->{
-				int stakeInsered=Integer.parseInt(stake.getText());
+				
+				//Se non esiste un finanziamento per il progetto selezionato da parte dell'azienda che ha fatto il login
+				if(deposito.myStake(agencyName, selectedProjectId) == false) {
+					//Inserisco un nuovo finanziamento
+				}
+				
+				
+				/*int stakeInsered=Integer.parseInt(stake.getText());
 				int totalStakes=deposito.getSommaStakes(selectedProjectId);
 				//se ho già raggiunto l'obiettivo
 				if(totalStakes>=selectedTotalBudget) {
@@ -175,7 +182,7 @@ public class Fundracing extends Application{
 				} //policy:non posso diminuire il finanziamento fatto
 				else {
 					JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
-				}
+				}*/
 			});
 		
 		
