@@ -54,7 +54,7 @@ public class Fundracing extends Application{
 	protected String agencyName = "";
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
-	private int selectedStake=0;
+	//private int selectedStake=0;
 	private int selectedTotalBudget=0;
 	private Label name_agency = new Label("");
 	private Label address_agency = new Label("");
@@ -157,18 +157,19 @@ public class Fundracing extends Application{
 			
 			update.setOnAction((ActionEvent ev1)->{
 				int stakeInsered=Integer.parseInt(stake.getText());
+				int totalStakes=deposito.getSommaStakes(selectedProjectId);
 				//se ho già raggiunto l'obiettivo
-				if(selectedStake>=selectedTotalBudget) {
+				if(totalStakes>=selectedTotalBudget) {
 					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
 				} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
-				else if(stakeInsered>selectedStake) {
-					int difference=0;
-					//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
+				else if(stakeInsered>totalStakes) {
+					int newStake=0;
+					//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso,quindi il nuovo stake è il budget finale
 					if(stakeInsered>selectedTotalBudget)
-						difference=selectedTotalBudget-selectedStake;
-					else //altrimenti metto la differenza tra newStake e oldStake(poichè non aggiorniamo lo stake nel database,ma aggiungiamo nuovo finanziamento
-						difference=stakeInsered-selectedStake;
-					deposito.updateStake(difference,agencyName,selectedProjectId);
+						newStake=selectedTotalBudget;
+					else //altrimenti il nuovo stake sarà semplicemente quello inserito
+						newStake=stakeInsered;
+					deposito.updateStake(newStake,agencyName,selectedProjectId);
 					table.updateProjects(deposito.getProjects(agencyName));
 					stake.setText("");
 				} //policy:non posso diminuire il finanziamento fatto
@@ -210,10 +211,10 @@ public class Fundracing extends Application{
                 final int index = row.getIndex(); 
                 RowTableProjects res = table.getItems().get(index);
                 selectedProjectId = res.getId_project();
-                selectedStake=res.getStake();
                 selectedTotalBudget=res.getBudget();
+                //selectedStake=(int)(res.getBudget()*Double.parseDouble(res.getProgress())/100);
                 description.setText(deposito.getDescriptionProject(selectedProjectId));
-                stake.setText(Integer.toString(selectedStake));
+                stake.setText(Integer.toString(res.getStake()));
             }  
          });  
             return row;  
