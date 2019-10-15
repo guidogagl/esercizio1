@@ -54,7 +54,7 @@ public class Fundracing extends Application{
 	protected String agencyName = "";
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
-	//private int selectedStake=0;
+	private int selectedStake=0;
 	private int selectedTotalBudget=0;
 	private Label name_agency = new Label("");
 	private Label address_agency = new Label("");
@@ -80,7 +80,7 @@ public class Fundracing extends Application{
 			String password=tf_password.getText();
 			Vector<String> result = deposito.getAgency(agencyName,password);
 			
-			//Se il nome dell'azienda Ë presente nel db e la password Ë corretta
+			//Se il nome dell'azienda √® presente nel db e la password √® corretta
 			if(!result.isEmpty()) {
 				table.updateProjects(deposito.getProjects(agencyName));
 				logged = true;
@@ -98,9 +98,9 @@ public class Fundracing extends Application{
 				image = new Image(urlLogo);
 				iv1.setImage(image);
 				
-			} //Se il nome dell'azienda non Ë presente nel db
+			} //Se il nome dell'azienda non √® presente nel db
 			else {
-				JOptionPane.showMessageDialog(null, "Il nome dell'azienda Ë errato oppure la password Ë scorretta!");
+				JOptionPane.showMessageDialog(null, "Il nome dell'azienda √® errato oppure la password √® scorretta!");
 			}
 			
         });
@@ -158,16 +158,16 @@ public class Fundracing extends Application{
 			update.setOnAction((ActionEvent ev1)->{
 				int stakeInsered=Integer.parseInt(stake.getText());
 				int totalStakes=deposito.getSommaStakes(selectedProjectId);
-				//se ho gi‡ raggiunto l'obiettivo
+				//se ho gi√† raggiunto l'obiettivo
 				if(totalStakes>=selectedTotalBudget) {
-					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosit‡, ma abbiamo gi‡ raggiunto l'obiettivo prefissato!");	
+					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosit√†, ma abbiamo gi√† raggiunto l'obiettivo prefissato!");	
 				} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
 				else  {
 					int newStake=0;
-					//se voglio mettere pi˘ soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso,quindi il nuovo stake Ë il budget finale
+					//se voglio mettere pi√π soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
 					if(stakeInsered>selectedTotalBudget)
-						newStake=selectedTotalBudget;
-					else //altrimenti il nuovo stake sar‡ semplicemente quello inserito
+						newStake=(selectedStake+(selectedTotalBudget-totalStakes)); //quanto ho messo pi√π quanto manca per il max
+					else //altrimenti il nuovo stake sar√† semplicemente quello inserito
 						newStake=stakeInsered;
 					deposito.updateStake(newStake,agencyName,selectedProjectId);
 					table.updateProjects(deposito.getProjects(agencyName));
@@ -212,7 +212,7 @@ public class Fundracing extends Application{
                 RowTableProjects res = table.getItems().get(index);
                 selectedProjectId = res.getId_project();
                 selectedTotalBudget=res.getBudget();
-                //selectedStake=(int)(res.getBudget()*Double.parseDouble(res.getProgress())/100);
+                selectedStake=res.getStake();
                 description.setText(deposito.getDescriptionProject(selectedProjectId));
                 stake.setText(Integer.toString(res.getStake()));
             }  
