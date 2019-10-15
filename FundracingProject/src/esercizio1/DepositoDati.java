@@ -122,7 +122,7 @@ public class DepositoDati {
 		
 		int somma=0;		
 		try {
-			  String sqlProgress="SELECT (sum(f.budget) as somma "
+			  String sqlProgress="SELECT sum(f.budget) as somma "
 			  		+ "FROM finanziamento f  "
 					+" WHERE f.progetto=(?);"
 					;
@@ -138,6 +138,7 @@ public class DepositoDati {
 		  }
 		return somma;
 	}
+	
 	
 	public double getProgress(int id_progetto)
 	{
@@ -210,7 +211,7 @@ public class DepositoDati {
 	
 	public void insertProject(Vector<String>val) {
 	  String insertProject="INSERT INTO progetto (nome,budget,descrizione,azienda) values ((?),(?),(?),(?))";
-	  String insertFinanziamento =  "INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
+	  //String insertFinanziamento =  "INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
 	  
 	  
 	  try {
@@ -221,13 +222,13 @@ public class DepositoDati {
 		  pstm.setString(4,val.get(3));
 		  pstm.execute();
 		  
-		  int id_project = getIdLastProject();
+		 /* int id_project = getIdLastProject();
 		  
 		  PreparedStatement pstm2=conn.prepareStatement(insertFinanziamento);
 		  pstm2.setInt(1, 0);
 		  pstm2.setString(2, val.get(3));
 		  pstm2.setInt(3, id_project);
-		  pstm2.execute();
+		  pstm2.execute();*/
 		  
 		}catch(SQLException e) {
 		  System.out.println(e.getMessage());
@@ -352,7 +353,7 @@ public class DepositoDati {
 	public Boolean myStake(String agencyName, int id_project) {
 		
 		int numeroOccorrenze = 0;
-		Boolean check = false;
+		Boolean check = false; //Non esiste un finanziamento
 		
 		String str = "SELECT count(*) as conta FROM finanziamento WHERE progetto = (?) and azienda = (?);";
 		
@@ -373,6 +374,7 @@ public class DepositoDati {
 		
 		if(numeroOccorrenze>0)
 			check=true;
+		
 		return check;
 	}
 	
@@ -392,7 +394,7 @@ public class DepositoDati {
 	}
 	
 	public void updateStake(int stakeBudget,String agencyName,int idProgetto) {
-		String updateStr="INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
+		/*String updateStr="INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
 		try {
 			PreparedStatement pstm=conn.prepareStatement(updateStr);
 			pstm.setInt(1,stakeBudget);
@@ -401,6 +403,40 @@ public class DepositoDati {
 			pstm.executeUpdate();
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
+		}*/
+		
+		
+		boolean stakePresent = myStake(agencyName, idProgetto);
+		
+		//Se non esiste un finanziamento per il progetto selezionato da parte dell'azienda che ha fatto il login
+		if(stakePresent == false) {
+			
+			String insertStr = "INSERT INTO finanziamento (budget, azienda, progetto) values((?), (?), (?));";
+			
+			try {
+				
+				PreparedStatement pstm=conn.prepareStatement(insertStr);
+				pstm.setInt(1,stakeBudget);
+				pstm.setString(2,agencyName);
+				pstm.setInt(3, idProgetto);
+				pstm.executeUpdate();
+				
+			}catch(SQLException e) {
+				System.out.println(e.getMessage());
+			}
+		}else {
+			String updateStr = "UPDATE finanziamento SET budget = (?) WHERE progetto = (?) and azienda = (?);"
+			PreparedStatement pstm=conn.prepareStatement(insertStr);
+			pstm.setInt(1,stakeBudget);
+			pstm.setString(2,agencyName);
+			pstm.setInt(3, idProgetto);
+			pstm.executeUpdate();
 		}
 	}
+	
+	
+	
+	
+	
+	
 }
