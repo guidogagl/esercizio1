@@ -4,6 +4,10 @@
 -- ------------------------------------------------------
 -- Server version	8.0.17
 
+CREATE database if not exists esercizio1;
+
+use esercizio1;
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -23,14 +27,13 @@ DROP TABLE IF EXISTS `azienda`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `azienda` (
-  `nomeAzienda` varchar(50) NOT NULL DEFAULT '',
-  `urlLogo` varchar(50) DEFAULT NULL,
-  `ulrSito` int(11) DEFAULT NULL,
-  `indirizzo` varchar(50) DEFAULT NULL,
+  `nomeAzienda` varchar(500) NOT NULL DEFAULT '',
+  `urlLogo` varchar(500) DEFAULT NULL,
+  `urlSito` varchar(500) DEFAULT NULL,
+  `indirizzo` varchar(500) DEFAULT NULL,
   `cap` int(11) DEFAULT NULL,
-  PRIMARY KEY (`nomeAzienda`),
-  CONSTRAINT `azienda_ibfk_1` FOREIGN KEY (`nomeAzienda`) REFERENCES `finanziamento` (`azienda`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `azienda_ibfk_2` FOREIGN KEY (`nomeAzienda`) REFERENCES `progetto` (`azienda`) ON DELETE CASCADE ON UPDATE CASCADE
+  `password` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`nomeAzienda`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -57,7 +60,9 @@ CREATE TABLE `finanziamento` (
   `progetto` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `azienda` (`azienda`),
-  KEY `progetto` (`progetto`)
+  KEY `progetto` (`progetto`),
+   CONSTRAINT `azienda_ibfk_1` FOREIGN KEY (`azienda`) REFERENCES `azienda` (`nomeAzienda`) ON DELETE CASCADE ON UPDATE CASCADE,
+   CONSTRAINT `progetto_ibfk_1` FOREIGN KEY (`progetto`) REFERENCES `progetto` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -85,13 +90,13 @@ CREATE TABLE `progetto` (
   `azienda` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `azienda` (`azienda`),
-  CONSTRAINT `progetto_ibfk_1` FOREIGN KEY (`id`) REFERENCES `finanziamento` (`progetto`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `azienda_ibfk_2` FOREIGN KEY (`azienda`) REFERENCES `azienda` (`nomeAzienda`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `progetto`
---
+-- CONSTRAINT `azienda_ibfk_2` FOREIGN KEY (`nomeAzienda`) REFERENCES `progetto` (`azienda`) ON DELETE CASCADE ON UPDATE CASCADE
 
 LOCK TABLES `progetto` WRITE;
 /*!40000 ALTER TABLE `progetto` DISABLE KEYS */;
@@ -108,3 +113,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2019-10-09 14:45:19
+azienda
