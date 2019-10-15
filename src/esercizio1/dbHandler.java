@@ -137,12 +137,13 @@ public class dbHandler {
 	}
 
 	public List<RowTableProjects> getProject() {
-		String sqlStr = "select	p.id as id_project, p.nome, p.budget, f.budget, f.azienda\r\n" + 
-				"from	progetto as p\r\n" + 
-				"		inner join\r\n" + 
-				"        finanziamento as f\r\n" + 
-				"        on p.id = f.progetto\r\n" + 
-				"order by p.id;";
+		String sqlStr = "select f1.id_project, f1.nome, f1.budget, max(f1.stake) as stake, f1.azienda\n" + 
+				"from  (\n" + 
+				"select f.progetto as id_project, p.nome, p.budget, case when f.azienda = 'Tesla' then f.budget else 0 end as stake, p.azienda\n" + 
+				"from finanziamento f inner join progetto p on f.progetto = p.id\n" + 
+				"order by stake desc\n" + 
+				"    ) as f1\n" + 
+				"group by f1.id_project;";
 		
 		//System.out.println(sqlStr);
 		
@@ -155,7 +156,7 @@ public class dbHandler {
 		
 		try {
 			Connection conn = null;
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=root");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=gagliardi");
 			PreparedStatement pstm = conn.prepareStatement(sqlStr);
 			ResultSet rs = pstm.executeQuery();
 			
