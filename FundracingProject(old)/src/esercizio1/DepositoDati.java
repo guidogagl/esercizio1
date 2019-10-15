@@ -14,7 +14,7 @@ import java.util.Vector;
 public class DepositoDati {
 	
 	private Connection conn;
-	private String connStr = "jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=mestesso";
+	private String connStr = "jdbc:mysql://localhost:3306/esercizio1?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=root";
 	
 	public DepositoDati() {
 		try {
@@ -37,24 +37,22 @@ public class DepositoDati {
 	
 	public List<RowTableProjects> getProjects(String agencyName){
 
-		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
+		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, f.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
 				"from	progetto as p\r\n" + 
 				"		inner join\r\n" + 
 				"        finanziamento as f\r\n" + 
 				"        on p.id = f.progetto\r\n" +
 				"where p.azienda = (?)\r\n" +
-				"group by f.progetto\r\n"+
-				"order by sum(f.budget)desc;";
+				"group by f.progetto;";
 		
-		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
+		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, f.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
 				"from	progetto as p\r\n" + 
 				"		inner join\r\n" + 
 				"        finanziamento as f\r\n" + 
 				"        on p.id = f.progetto\r\n" +
 				"where p.azienda != (?)\r\n" +
 				"and f.azienda=(?)\r\n"+
-				"group by f.progetto\r\n"+
-				"order by sum(f.budget)desc;";
+				"group by f.progetto;";
 		
 		String sqlStr3 = "select	f.progetto as id_project, p.nome as nome, (sum(f.budget)/p.budget)*100 as progress, p.budget, 0 as stake, p.azienda\r\n" + 
 				"				from	progetto as p\r\n" + 
@@ -77,8 +75,7 @@ public class DepositoDati {
 				"					where f.azienda = (?)\r\n" + 
 				"						and p.azienda != (?)\r\n" + 
 				"                )\r\n" + 
-				"group by f.progetto\r\n"+
-				"order by sum(f.budget)desc;";
+				"group by	f.progetto, f.azienda;";
 		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		
@@ -183,7 +180,9 @@ public class DepositoDati {
 		  pstm2.setInt(3, id_project);
 		  pstm2.execute();
 		  
-		}catch(SQLException e) {
+		  System.out.println("agency: "+val.get(3)+ " id: "+id_project);
+		  
+	  }catch(SQLException e) {
 		  System.out.println(e.getMessage());
 	  }
 	}
@@ -229,20 +228,21 @@ public class DepositoDati {
 			System.out.println(e.getMessage());
 		}
 	}
-	/*
-	public void updateStake(int stakeId,int stakeBudget) {
-		String updateStr="UPDATE finanziamento SET budget = (?) WHERE id = (?)";
+	
+	public void updateStake(int stakeBudget, String agencyName, int idProgetto) {
+		String updateStr="INSERT INTO finanziamento (budget, azienda, progetto) VALUES ((?), (?), (?))";
 		try {
 			PreparedStatement pstm=conn.prepareStatement(updateStr);
 			pstm.setInt(1,stakeBudget);
-			pstm.setInt(2,stakeId);
+			pstm.setString(2,agencyName);
+			pstm.setInt(3,idProgetto);
 			pstm.executeUpdate();
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
 	
-	public void deleteStake(int stakeId) {
+	/*public void deleteStake(int stakeId) {
 		String deleteStr="DELETE FROM finanziamento WHERE id =(?)";
 		try {
 			PreparedStatement pstm=conn.prepareStatement(deleteStr);
@@ -251,19 +251,18 @@ public class DepositoDati {
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
-	}
+	}*/
 	
-	*/
-	public Vector<String> getAgency(String agencyName,String password) {
+	
+	public Vector<String> getAgency(String agencyName) {
 		
 		Vector<String> vector = new Vector<String>();
-		String str = "SELECT * FROM azienda WHERE nomeAzienda = (?) AND password =(?)";
+		String str = "SELECT * FROM azienda WHERE nomeAzienda = (?)";
 		
 		try {
 			
 			PreparedStatement pstm=conn.prepareStatement(str);
 			pstm.setString(1, agencyName);
-			pstm.setString(2, password);
 			ResultSet res = pstm.executeQuery();
 			
 			
@@ -345,16 +344,26 @@ public class DepositoDati {
 		}
 	}
 	
-	public void updateStake(int stakeBudget,String agencyName,int idProgetto) {
-		String updateStr="INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
+	
+	/*public String getUrl(String agencyName) {
+		
+		String urlLogo = "";
+		
+		String strQuery = "SELECT urlLogo FROM azienda WHERE nomeAzienda = (?);";
+		
 		try {
-			PreparedStatement pstm=conn.prepareStatement(updateStr);
-			pstm.setInt(1,stakeBudget);
-			pstm.setString(2,agencyName);
-			pstm.setInt(3, idProgetto);
-			pstm.executeUpdate();
+			PreparedStatement pstm=conn.prepareStatement(strQuery);
+			pstm.setString(1, agencyName);
+			ResultSet res = pstm.executeQuery();
+			
+			while(res.next()) {
+				urlLogo = res.getString("urlLogo");
+			}
+			
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
-	}
+		
+		return urlLogo;
+	}*/
 }

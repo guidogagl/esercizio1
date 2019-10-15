@@ -37,16 +37,14 @@ import javafx.util.*;
 
 public class Fundracing extends Application{
 	
-	protected TextField tf_companyName = new TextField();
-	protected Button login = new Button("Login");
+	protected TextField tf_companyName = new TextField("Company Name");
+	protected TextField tf_password = new TextField("Password");
+	protected Button submit = new Button("Submit");
 	protected Label table_title = new Label("NetworkProjects");
-	protected Label l_password=new Label("Password");
-	protected Label l_agencyName=new Label("Agenzia");
 	protected TextArea description = new TextArea();
 	protected TextField name_project = new TextField("Project Name");
 	protected TextField total_budget = new TextField("Total Budget");
 	protected TextField stake = new TextField("Stake");
-	protected TextField tf_password=new TextField();
 	protected Button update = new Button("Update");
 	protected Button insert = new Button("Insert");
 	protected Button delete = new Button("Delete");
@@ -54,8 +52,9 @@ public class Fundracing extends Application{
 	protected String agencyName = "";
 	private TableProjects table = new TableProjects();
 	private int selectedProjectId = 0;
-	private int selectedStake=0;
-	private int selectedTotalBudget=0;
+	private String selectedProjectAgency="";
+	private int selectedTotalBudget = 0;
+	private int selectedStake = 0;
 	private Label name_agency = new Label("");
 	private Label address_agency = new Label("");
 	private Label site_agency = new Label("");
@@ -68,20 +67,18 @@ public class Fundracing extends Application{
 	public void start(Stage stage) {
 		
 		
-		
 		table.updateProjects(deposito.getProjectsWithoutStake());
 		selectTableRow();
 		
-		login.setOnAction((ActionEvent ev1)->{
+		
+		submit.setOnAction((ActionEvent ev1)->{
 			
 			String urlLogo = "";
 			
 			agencyName = tf_companyName.getText();
-			String password=tf_password.getText();
-			Vector<String> result = deposito.getAgency(agencyName,password);
 			
-			//Se il nome dell'azienda è presente nel db e la password è corretta
-			if(!result.isEmpty()) {
+			//Se il nome dell'azienda è presente nel db
+			if(!deposito.getAgency(agencyName).isEmpty()) {
 				table.updateProjects(deposito.getProjects(agencyName));
 				logged = true;
 				insert.setDisable(false);
@@ -91,23 +88,67 @@ public class Fundracing extends Application{
 				total_budget.setEditable(true);
 				stake.setEditable(true);
 				update.setDisable(false);
+				Vector<String> result = deposito.getAgency(agencyName);
 				name_agency.setText(result.get(0)); 
 				address_agency.setText(result.get(3));
 				site_agency.setText(result.get(4));
-				urlLogo = result.get(1);
+				
+				urlLogo = deposito.getAgency(agencyName).get(1);
+				
+				
 				image = new Image(urlLogo);
-				iv1.setImage(image);
+				//iv1 = new ImageView();
+		        iv1.setImage(image);
 				
 			} //Se il nome dell'azienda non è presente nel db
 			else {
-				JOptionPane.showMessageDialog(null, "Il nome dell'azienda è errato oppure la password è scorretta!");
+				JOptionPane.showMessageDialog(null, "Il nome dell'azienda è errato!");
 			}
 			
         });
 		
-		Interface interfaccia = new Interface(login, tf_companyName, table_title, table, 
+		
+		/*update.setOnAction((ActionEvent ev1)->{
+			
+			if(selectedStake >= selectedTotalBudget) {
+				JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obbiettivo prefissato!");
+			}else if(Integer.parseInt(stake.getText()) > selectedStake) {
+				deposito.updateStake(Integer.parseInt(stake.getText()),agencyName,selectedProjectId);
+				table.updateProjects(deposito.getProjects(agencyName));
+				stake.setText("");
+			}else {
+				JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");
+			}
+		});*/
+		
+		
+		update.setOnAction((ActionEvent ev1)->{
+			int stakeInsered=Integer.parseInt(stake.getText());
+			//se ho già raggiunto l'obiettivo
+			if(selectedStake>=selectedTotalBudget) {
+				JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
+			} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
+			else if(stakeInsered>selectedStake) {
+				int difference=0;
+				//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
+				if(stakeInsered>selectedTotalBudget)
+					difference=selectedTotalBudget-selectedStake;
+				else //altrimenti metto la differenza tra newStake e oldStake(poichè non aggiorniamo lo stake nel database,ma aggiungiamo nuovo finanziamento
+					difference=stakeInsered-selectedStake;
+				deposito.updateStake(difference,agencyName,selectedProjectId);
+				table.updateProjects(deposito.getProjects(agencyName));
+				stake.setText("");
+			} //policy:non posso diminuire il finanziamento fatto
+			else {
+				JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
+			}
+		});
+	
+		
+		
+		Interface interfaccia = new Interface(submit, tf_companyName, table_title, table, 
 				description, name_project, total_budget, insert, delete, iv1, stake, update,
-				name_agency, address_agency, site_agency,tf_password,l_agencyName,l_password);
+				name_agency, address_agency, site_agency, tf_password);
 		
 		
 		insert.setOnAction((ActionEvent ev2)->{
@@ -154,35 +195,12 @@ public class Fundracing extends Application{
 					JOptionPane.showMessageDialog(null, "Puoi eliminare solo i tuoi progetti o finanziamenti!");
 				}
 			});
-			
-			update.setOnAction((ActionEvent ev1)->{
-				int stakeInsered=Integer.parseInt(stake.getText());
-				//se ho già raggiunto l'obiettivo
-				if(selectedStake>=selectedTotalBudget) {
-					JOptionPane.showMessageDialog(null, "Ti ringraziamo per la tua generosità, ma abbiamo già raggiunto l'obiettivo prefissato!");	
-				} //se non ho raggiunto l'obiettivo e voglio aggiungere soldi
-				else if(stakeInsered>selectedStake) {
-					int difference=0;
-					//se voglio mettere più soldi di quelli necessari,metto solo quelli che mi servono per raggiungere il budget prefisso
-					if(stakeInsered>selectedTotalBudget)
-						difference=selectedTotalBudget-selectedStake;
-					else //altrimenti metto la differenza tra newStake e oldStake(poichè non aggiorniamo lo stake nel database,ma aggiungiamo nuovo finanziamento
-						difference=stakeInsered-selectedStake;
-					deposito.updateStake(difference,agencyName,selectedProjectId);
-					table.updateProjects(deposito.getProjects(agencyName));
-					stake.setText("");
-				} //policy:non posso diminuire il finanziamento fatto
-				else {
-					JOptionPane.showMessageDialog(null, "Non puoi diminuire il finanziamento che hai messo!");	
-				}
-			});
 		
 		
 		
-		
-		Group root = new Group(tf_companyName,tf_password, login, table_title, table, description,
+		Group root = new Group(tf_companyName, submit, table_title, table, description,
 				name_project, total_budget, insert, delete, iv1, stake, update, 
-				name_agency, address_agency, site_agency,l_agencyName,l_password);
+				name_agency, address_agency, site_agency, tf_password);
 		
 		
 	
@@ -210,10 +228,9 @@ public class Fundracing extends Application{
                 final int index = row.getIndex(); 
                 RowTableProjects res = table.getItems().get(index);
                 selectedProjectId = res.getId_project();
-                selectedStake=res.getStake();
-                selectedTotalBudget=res.getBudget();
+                selectedProjectAgency=res.getAzienda();
+                selectedTotalBudget = res.getBudget();
                 description.setText(deposito.getDescriptionProject(selectedProjectId));
-                stake.setText(Integer.toString(selectedStake));
             }  
          });  
             return row;  

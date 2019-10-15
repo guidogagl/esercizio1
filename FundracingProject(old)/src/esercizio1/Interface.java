@@ -9,43 +9,34 @@ import javafx.scene.control.*;
 
 public class Interface {
 
-	Interface(Button login, TextField tf_companyName, Label table_title, TableProjects table, 
+	Interface(Button submit, TextField tf_companyName, Label table_title, TableProjects table, 
 			TextArea description, TextField name_project, TextField total_budget, Button insert, Button delete,
-			ImageView iv1, TextField stake, Button update, Label name_agency, Label address_agency, Label site_agency,TextField tf_password,
-			Label l_agencyName,Label l_password){
+			ImageView iv1, TextField stake, Button update, Label name_agency, Label address_agency, Label site_agency,
+			TextField tf_password){
 		
-		//Abbasso tutte le y di 20
-		login.setLayoutX(540);
-		login.setLayoutY(125);
-		login.setMinSize(70, 30);
-		login.setStyle("-fx-font-weight: bold;");
 		
-		name_agency.setLayoutX(335);
+		submit.setLayoutX(545);
+		submit.setLayoutY(105);
+		submit.setMinSize(70, 30);
+		submit.setStyle("-fx-font-weight: bold;");
+		
+		name_agency.setLayoutX(350);
 		name_agency.setLayoutY(40);
 		name_agency.setStyle("-fx-font-weight: bold;  -fx-font-size: 18px;");
 		
-		
-		address_agency.setLayoutX(280);
-		address_agency.setLayoutY(72.5);
+		address_agency.setLayoutX(300);
+		address_agency.setLayoutY(70);
 		address_agency.setStyle("-fx-font-weight: bold;");
 		
-		site_agency.setLayoutX(340);
+		site_agency.setLayoutX(350);
 		site_agency.setLayoutY(100);
 		site_agency.setStyle("-fx-font-weight: bold;");
 		
 		tf_companyName.setLayoutX(500);
-		tf_companyName.setLayoutY(30);
-		
-		l_agencyName.setLayoutX(550);
-		l_agencyName.setLayoutY(10);
-		
+		tf_companyName.setLayoutY(35);
 		
 		tf_password.setLayoutX(500);
-		tf_password.setLayoutY(85);
-		
-		l_password.setLayoutX(540);
-		l_password.setLayoutY(65);
-		
+		tf_password.setLayoutY(70);		
 		
 		table_title.setLayoutX(300);
 		table_title.setLayoutY(160);
@@ -99,8 +90,8 @@ public class Interface {
 		
 		iv1.setFitHeight(100);
 	    iv1.setFitWidth(100);
-	    iv1.setLayoutX(80);
-	    iv1.setLayoutY(35);
+	    iv1.setLayoutX(50);
+	    iv1.setLayoutY(20);
 	    
 	    stake.setLayoutX(130);
 	    stake.setLayoutY(360);
