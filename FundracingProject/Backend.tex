@@ -1,0 +1,36 @@
+\documentclass[12pt]{article}
+\usepackage[left=12mm,top=0.5in,bottom=5in]{geometry}
+\begin{document} 
+\title{Backend}
+\maketitle
+
+\section {Classe}
+La classe che si occuperà delle funzionalità di backend del progetto FundRaising Projec è DepositoDati.
+
+\section {Funzioni prima del login}
+
+La prima delle funzionalità che le viene richiesta,appena si apre la applicazione,è la verifica della correttezza dell'username e della password specificati nei campi appositi.\\
+In contemporanea,vengono prelevati e inseriti nella tabella tutti i progetti con uno stake e un progresso momentaneamente indefiniti.\\
+
+\section {Funzioni automatiche dopo il  login}
+Se le verifica ha esito positivo,vengono presi dal database i dati riguardanti l'azienda: l'indirizzo,il nome,il cap e l'immagine.\\
+I progetti all'interno della tabella vengono aggiornati,questa volta con il reale progress e stake,caricandoli nel seguente ordine: \\
+1) I progetti proprietari dell'azienda appena loggata \\
+2)I progetti su cui l'azienda ha fatto almeno un finanziamento \\
+3)Tutti i progetti rimanenti,che non rientrano nelle prime due categorie.\\
+
+\section {Funzioni disponibili dopo il login}
+
+La classe DepositoDati \\
+1) quando si esegue un updateStake,inserisce un nuovo finanziamento corrispondente alla differenza tra il nuovo e il vecchio stake \\
+2) quando si inserisce un progetto,crea la row ad esso associata nella tabella "progetto" e il primo finanziamento,con stake 0,nella omonima tabella \\
+3)  quando si clicca il bottone delete,dopo aver selezionato una riga della tabella,prima verifica se si è il proprietario del progetto selezionato,e se l'esito della verifica è positivo,elimina il progetto e tutti i finanziamenti associati dal database,altrimenti solo il finanziamento,qualora sia mio
+
+\section {Funzioni ausiliari}
+
+Ci sono infine delle funzioni ausiliarie necessarie per il corretto funzionamento della applicazione:\\
+1)Recuperare dal database la descrizione e lo stake del progetto associato alla riga della tabella cliccata\\
+2)Verifica se si è proprietari di un progetto\\
+3)Recupero dell'id dell'ultimo progetto inserito\\
+
+\end{document}

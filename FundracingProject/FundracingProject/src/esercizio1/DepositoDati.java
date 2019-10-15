@@ -37,26 +37,26 @@ public class DepositoDati {
 	
 	public List<RowTableProjects> getProjects(String agencyName){
 
-		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda\r\n" + 
+		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
 				"from	progetto as p\r\n" + 
 				"		inner join\r\n" + 
 				"        finanziamento as f\r\n" + 
 				"        on p.id = f.progetto\r\n" +
 				"where p.azienda = (?)\r\n" +
-				"group by f.progetto,p.azienda\r\n"+
-				"order by sum(f.budget)desc";
+				"group by f.progetto\r\n"+
+				"order by sum(f.budget)desc;";
 		
-		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda\r\n" + 
+		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda, (sum(f.budget)/p.budget)*100 as progress\r\n" + 
 				"from	progetto as p\r\n" + 
 				"		inner join\r\n" + 
 				"        finanziamento as f\r\n" + 
 				"        on p.id = f.progetto\r\n" +
 				"where p.azienda != (?)\r\n" +
 				"and f.azienda=(?)\r\n"+
-				"group by f.progetto,p.azienda\r\n"+
-				"order by sum(f.budget)desc";
+				"group by f.progetto\r\n"+
+				"order by sum(f.budget)desc;";
 		
-		String sqlStr3 = "select distinct f.progetto as id_project, p.nome as nome, p.budget, 0 as stake, p.azienda\r\n" + 
+		String sqlStr3 = "select	f.progetto as id_project, p.nome as nome, (sum(f.budget)/p.budget)*100 as progress, p.budget, 0 as stake, p.azienda\r\n" + 
 				"				from	progetto as p\r\n" + 
 				"						inner join\r\n" +
 				"                        finanziamento as f\r\n" + 
@@ -77,7 +77,8 @@ public class DepositoDati {
 				"					where f.azienda = (?)\r\n" + 
 				"						and p.azienda != (?)\r\n" + 
 				"                )\r\n" + 
-				";";
+				"group by f.progetto\r\n"+
+				"order by sum(f.budget)desc;";
 		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		
@@ -97,68 +98,21 @@ public class DepositoDati {
 			ResultSet rs3 = pstm3.executeQuery();
 			
 			while(rs.next()) {
-				int id=rs.getInt("id_project");
-				ret.add(new RowTableProjects(id, rs.getString("nome"), Double.toString(getProgress(id)), rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
+				ret.add(new RowTableProjects(rs.getInt("id_project"), rs.getString("nome"), rs.getString("progress"), rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
 			}
 			
 			while(rs2.next()) {
-				int id=rs2.getInt("id_project");
-				ret.add(new RowTableProjects(id, rs2.getString("nome"),  Double.toString(getProgress(id)), rs2.getInt("budget"), rs2.getInt("stake"), rs2.getString("azienda")));
+				ret.add(new RowTableProjects(rs2.getInt("id_project"), rs2.getString("nome"), rs2.getString("progress"), rs2.getInt("budget"), rs2.getInt("stake"), rs2.getString("azienda")));
 			}
 			
 			
 			while(rs3.next()) {
-				int id=rs3.getInt("id_project");
-				ret.add(new RowTableProjects(id, rs3.getString("nome"),  Double.toString(getProgress(id)), rs3.getInt("budget"), rs3.getInt("stake"), rs3.getString("azienda")));
+				ret.add(new RowTableProjects(rs3.getInt("id_project"), rs3.getString("nome"), rs3.getString("progress"), rs3.getInt("budget"), rs3.getInt("stake"), rs3.getString("azienda")));
 			}
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
 		return ret;
-	}
-	
-	public int getSommaStakes(int selectedProjectID)
-	{
-		
-		int somma=0;		
-		try {
-			  String sqlProgress="SELECT (sum(f.budget) as somma "
-			  		+ "FROM finanziamento f  "
-					+" WHERE f.progetto=(?);"
-					;
-			  PreparedStatement pstm=conn.prepareStatement(sqlProgress);
-			  pstm.setInt(1,selectedProjectID);
-			  ResultSet rs=pstm.executeQuery();
-			  while(rs.next())
-			  {
-				  somma=rs.getInt("somma");
-			  }
-			}catch(SQLException e) {
-			  System.out.println(e.getMessage());
-		  }
-		return somma;
-	}
-	
-	public double getProgress(int id_progetto)
-	{
-		double progress=0;
-		try {
-			  String sqlProgress="SELECT (sum(f.budget)/p.budget)*100 as progresso "
-			  		+ "FROM progetto p inner join finanziamento f on p.id=f.progetto "
-					+" WHERE p.id=(?);"
-					;
-			  PreparedStatement pstm=conn.prepareStatement(sqlProgress);
-			  pstm.setInt(1,id_progetto);
-			  ResultSet rs=pstm.executeQuery();
-			  while(rs.next())
-			  {
-				  progress=rs.getDouble("progresso");
-			  }
-			}catch(SQLException e) {
-			  System.out.println(e.getMessage());
-		  }
-		return progress;
-		
 	}
 	
 	public List<RowTableProjects> getProjectsWithoutStake(){
