@@ -37,47 +37,13 @@ public class DepositoDati {
 	
 	public List<RowTableProjects> getProjects(String agencyName){
 
-		String sqlStr = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda\r\n" + 
-				"from	progetto as p\r\n" + 
-				"		inner join\r\n" + 
-				"        finanziamento as f\r\n" + 
-				"        on p.id = f.progetto\r\n" +
-				"where p.azienda = (?)\r\n" +
-				"group by f.progetto,p.azienda\r\n"+
-				"order by sum(f.budget)desc";
-		
-		String sqlStr2 = "select	f.progetto as id_project, p.nome, p.budget, sum(f.budget) as stake, p.azienda\r\n" + 
-				"from	progetto as p\r\n" + 
-				"		inner join\r\n" + 
-				"        finanziamento as f\r\n" + 
-				"        on p.id = f.progetto\r\n" +
-				"where p.azienda != (?)\r\n" +
-				"and f.azienda=(?)\r\n"+
-				"group by f.progetto,p.azienda\r\n"+
-				"order by sum(f.budget)desc";
-		
-		String sqlStr3 = "select distinct f.progetto as id_project, p.nome as nome, p.budget, 0 as stake, p.azienda\r\n" + 
-				"				from	progetto as p\r\n" + 
-				"						inner join\r\n" +
-				"                        finanziamento as f\r\n" + 
-				"                        on p.id = f.progetto\r\n" + 
-				"				where	p.id not in (\r\n" + 
-				"					select	p.id\r\n" + 
-				"					from	progetto as p\r\n" + 
-				"							inner join \r\n" + 
-				"					        finanziamento as f\r\n" + 
-				"					        on p.id = f.progetto\r\n" + 
-				"					where p.azienda = (?)\r\n" + 
-				"                ) and p.id not in (\r\n" + 
-				"					select	p.id\r\n" + 
-				"					from	progetto as p\r\n" + 
-				"							inner join \r\n" + 
-				"					        finanziamento as f\r\n" + 
-				"					        on p.id = f.progetto\r\n" + 
-				"					where f.azienda = (?)\r\n" + 
-				"						and p.azienda != (?)\r\n" + 
-				"                )\r\n" + 
-				";";
+		String sqlStr = "select f1.id_project, f1.nome, f1.budget, max(f1.stake) as stake, f1.azienda\n" + 
+				"from  (\n" + 
+				"select f.progetto as id_project, p.nome, p.budget, case when f.azienda = ? then f.budget else 0 end as stake, p.azienda\n" + 
+				"from finanziamento f inner join progetto p on f.progetto = p.id\n" + 
+				"order by stake desc\n" + 
+				"    ) as f1\n" + 
+				"group by f1.id_project";
 		
 		List<RowTableProjects> ret = new ArrayList<RowTableProjects>();
 		
@@ -86,31 +52,11 @@ public class DepositoDati {
 			pstm.setString(1, agencyName);
 			ResultSet rs = pstm.executeQuery();
 			
-			PreparedStatement pstm2 = conn.prepareStatement(sqlStr2);
-			pstm2.setString(1, agencyName);
-			pstm2.setString(2, agencyName);
-			ResultSet rs2 = pstm2.executeQuery();
-			PreparedStatement pstm3 = conn.prepareStatement(sqlStr3);
-			pstm3.setString(1, agencyName);
-			pstm3.setString(2, agencyName);
-			pstm3.setString(3, agencyName);
-			ResultSet rs3 = pstm3.executeQuery();
-			
 			while(rs.next()) {
 				int id=rs.getInt("id_project");
 				ret.add(new RowTableProjects(id, rs.getString("nome"), Double.toString(getProgress(id)), rs.getInt("budget"), rs.getInt("stake"), rs.getString("azienda")));
 			}
-			
-			while(rs2.next()) {
-				int id=rs2.getInt("id_project");
-				ret.add(new RowTableProjects(id, rs2.getString("nome"),  Double.toString(getProgress(id)), rs2.getInt("budget"), rs2.getInt("stake"), rs2.getString("azienda")));
-			}
-			
-			
-			while(rs3.next()) {
-				int id=rs3.getInt("id_project");
-				ret.add(new RowTableProjects(id, rs3.getString("nome"),  Double.toString(getProgress(id)), rs3.getInt("budget"), rs3.getInt("stake"), rs3.getString("azienda")));
-			}
+
 		}catch(SQLException e) {
 			System.out.println(e.getMessage());
 		}
