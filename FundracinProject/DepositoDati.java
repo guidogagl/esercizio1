@@ -422,8 +422,17 @@ public class DepositoDati {
 			System.out.println(e.getMessage());
 		}
 	}
-	
 	public void updateStake(int stakeBudget,String agencyName,int idProgetto) {
+		/*String updateStr="INSERT INTO finanziamento (budget,azienda,progetto) values ((?),(?),(?))";
+		try {
+			PreparedStatement pstm=conn.prepareStatement(updateStr);
+			pstm.setInt(1,stakeBudget);
+			pstm.setString(2,agencyName);
+			pstm.setInt(3, idProgetto);
+			pstm.executeUpdate();
+		}catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}*/
 		
 		
 		boolean stakePresent = myStake(agencyName, idProgetto);
@@ -445,19 +454,15 @@ public class DepositoDati {
 				System.out.println(e.getMessage());
 			}
 		}else {
-			String updateStr = "UPDATE finanziamento SET budget = (?) WHERE progetto = (?) and azienda = (?);";
-			
 			try {
-				PreparedStatement pstm=conn.prepareStatement(updateStr);
-				pstm.setInt(1,stakeBudget);
-				pstm.setString(2,agencyName);
-				pstm.setInt(3, idProgetto);
-				pstm.executeUpdate();
-			}catch(SQLException e) {
-				System.out.println(e.getMessage());
-			}
+			String updateStr = "UPDATE finanziamento SET budget = (?) WHERE progetto = (?) and azienda = (?);";
+			PreparedStatement pstm=conn.prepareStatement(updateStr);
+			pstm.setInt(1,stakeBudget);
+			pstm.setString(3,agencyName);
+			pstm.setInt(2, idProgetto);
+			pstm.executeUpdate();
+			}catch(Exception e) {System.out.println(e.getMessage());}
 		}
-	}
 	
 	
 	
